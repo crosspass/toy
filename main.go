@@ -15,7 +15,7 @@ func main() {
 }
 
 func h(w http.ResponseWriter, r *http.Request) {
-	log.Printf("url: %s, method: %s", r.URL.Path, r.Method)
+	log.Printf("host: %s, url: %s, method: %s", r.RemoteAddr, r.URL.Path, r.Method)
 	method, path := r.Method, r.URL.Path
 	w.Header().Set("Content-Type", "application/json")
 
