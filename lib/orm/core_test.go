@@ -59,17 +59,102 @@ func TestRawCreateTableWithIntegerAndString(t *testing.T) {
 }
 
 func TestCreateTable(t *testing.T) {
-	ok := CreateTable("students", StringColumn{"name", 10})
-	if !ok {
+	err := CreateTable("students", StringColumn{"name", 10})
+	if err != nil {
 		t.Error("Create table students failed")
 	}
 	DropTable("students")
 }
 
-func TestCreateTable2(t *testing.T) {
-	ok := CreateTable("students", StringColumn{"name", 10})
-	if !ok {
-		t.Error("Create table students failed")
+func TestCreateTableWithMutiColumns(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	if err != nil {
+		t.Error(err)
+	}
+	DropTable("students")
+}
+
+func TestRawColumnsStr(t *testing.T) {
+	expected := "name varchar(10), age smallint"
+	actual := rawColumnsStr(StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	if expected != actual {
+		t.Errorf("expected: %s, actual: %s", expected, actual)
+	}
+}
+
+func TestAddColumn(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10})
+	if err != nil {
+		t.Error(err)
+	}
+	err = AddColumns("students", IntegerColumn{"age", 3})
+	if err != nil {
+		t.Error(err)
+	}
+	DropTable("students")
+}
+
+func TestAddMutiColumns(t *testing.T) {
+	err := CreateTable("students")
+	if err != nil {
+		t.Error(err)
+	}
+	err = AddColumns("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	if err != nil {
+		t.Error(err)
+	}
+	DropTable("students")
+}
+
+func TestCreateRecord(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	if err != nil {
+		t.Error("Create table students failed: %s", err)
+	}
+	_, err = CreateRecord("students", Field{"name", "bob"}, Field{"age", 20})
+	if err != nil {
+		t.Error(err)
+	}
+	DropTable("students")
+}
+
+func TestUpdateRecord(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	if err != nil {
+		t.Error("Create table students failed: %s", err)
+	}
+	_, err = CreateRecord("students", Field{"name", "bob"}, Field{"age", 20})
+	if err != nil {
+		t.Error(err)
+	}
+	err = UpdateRecord("students", []Field{{"name", "bob"}}, Field{"name", "mike"})
+	if err != nil {
+		t.Error(err)
+	}
+	DropTable("students")
+}
+
+func TestFetchRecord(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	if err != nil {
+		t.Error("Create table students failed: %s", err)
+	}
+	_, err = CreateRecord("students", Field{"name", "bob"}, Field{"age", 20})
+	if err != nil {
+		t.Error(err)
+	}
+	rows, err := FetchRecords("students", []Field{{"name", "bob"}})
+	defer rows.Close()
+	if err != nil {
+		t.Error(err)
+	}
+	for rows.Next() {
+		var name string
+		var age int
+		rows.Scan(&name, &age)
+		if name != "bob" || age != 20 {
+			t.Errorf("expected: name=%s, age=%d, acutal: name=%s, age=%d", "bob", 20, name, age)
+		}
 	}
 	DropTable("students")
 }

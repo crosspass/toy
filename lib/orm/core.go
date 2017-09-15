@@ -30,6 +30,11 @@ type IntegerColumn struct {
 	Length int
 }
 
+type Field struct {
+	Name  string
+	Value interface{}
+}
+
 func (ic IntegerColumn) Field() string {
 	return ic.Name
 }
@@ -67,39 +72,109 @@ func getDB() (db *sql.DB) {
 * For create table
 * * CrateTable('students', {"name": string, "no": int})
  */
-func CreateTable(tableName string, columns ...Column) bool {
+func CreateTable(tb string, columns ...Column) error {
 	db := getDB()
-	_, err := db.Query(rawCreateTableSql(tableName, columns...))
+	_, err := db.Query(rawCreateTableSql(tb, columns...))
 	if err != nil {
-		log.Fatal(err)
-		return false
+		log.Println(err)
+		return err
 	}
-	return true
+	return nil
 }
 
-func DropTable(name string) bool {
-	db, err := sql.Open("postgres", "user=root host=/var/run/postgresql dbname=dating password=root123")
+func DropTable(name string) error {
+	db := getDB()
+	_, err := db.Query(fmt.Sprintf("drop table %s", name))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
-	_, err = db.Query(fmt.Sprintf("drop table %s", name))
+	return err
+}
+
+func AddColumns(tb string, columns ...Column) error {
+	db := getDB()
+	var sql string
+	for i, column := range columns {
+		if i != 0 {
+			sql += ","
+		}
+		sql += fmt.Sprintf("add %s %v", column.Field(), column.SqlType())
+	}
+
+	_, err := db.Query(fmt.Sprintf("alter table %s %s", tb, sql))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
-	return true
+	return err
 }
 
 /*
 * "create table students(name varchar(10), no int)"
  */
-func rawCreateTableSql(tableName string, columns ...Column) (query string) {
-	query = "create table " + tableName + "("
+func rawCreateTableSql(tb string, columns ...Column) (query string) {
+	columsStr := rawColumnsStr(columns...)
+	return fmt.Sprintf("create table %s(%s)", tb, columsStr)
+}
+
+func rawColumnsStr(columns ...Column) string {
+	var columsStr string
 	for i, column := range columns {
 		if i != 0 {
-			query += ", "
+			columsStr += ", "
 		}
-		query += fmt.Sprintf("%s %s", column.Field(), column.SqlType())
+		columsStr += fmt.Sprintf("%s %s", column.Field(), column.SqlType())
 	}
-	query += ")"
-	return
+	return columsStr
+}
+
+func CreateRecord(tb string, fields ...Field) (*sql.Rows, error) {
+	db := getDB()
+
+	var colStr, valStr string
+	for i, field := range fields {
+		if i != 0 {
+			colStr += ","
+			valStr += ","
+		}
+		colStr += field.Name
+		valStr += fmt.Sprintf("'%v'", field.Value)
+	}
+	str := fmt.Sprintf("insert into %s (%s) values (%s)", tb, colStr, valStr)
+	rows, err := db.Query(str)
+	return rows, err
+}
+
+func UpdateRecord(tb string, coditions []Field, fields ...Field) error {
+	db := getDB()
+	where := parseWhere(coditions...)
+	var colStr string
+	for i, field := range fields {
+		if i != 0 {
+			colStr = ","
+		}
+		colStr += fmt.Sprintf("%s = '%s'", field.Name, field.Value)
+	}
+	str := fmt.Sprintf("update %s set %s  %s", tb, colStr, where)
+	rows, err := db.Query(str)
+	defer rows.Close()
+	return err
+}
+
+func FetchRecords(tb string, fields []Field) (*sql.Rows, error) {
+	db := getDB()
+	var where = parseWhere(fields...)
+	str := fmt.Sprintf("select * from %s %s", tb, where)
+	row, err := db.Query(str)
+	return row, err
+}
+
+func parseWhere(fields ...Field) string {
+	var where string
+	for i, f := range fields {
+		if i != 0 {
+			where += ","
+		}
+		where += fmt.Sprintf("%s = '%v'", f.Name, f.Value)
+	}
+	return fmt.Sprintf("where(%s)", where)
 }
