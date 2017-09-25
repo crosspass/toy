@@ -110,7 +110,7 @@ func AddColumns(tb string, columns ...Column) error {
 
 /*
 * "create table students(name varchar(10), no int)"
- */
+*/
 func rawCreateTableSql(tb string, columns ...Column) (query string) {
 	columsStr := rawColumnsStr(columns...)
 	return fmt.Sprintf("create table %s(%s)", tb, columsStr)
