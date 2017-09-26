@@ -110,7 +110,7 @@ func AddColumns(tb string, columns ...Column) error {
 
 /*
 * "create table students(name varchar(10), no int)"
-*/
+ */
 func rawCreateTableSql(tb string, columns ...Column) (query string) {
 	columsStr := rawColumnsStr(columns...)
 	return fmt.Sprintf("create table %s(%s)", tb, columsStr)
@@ -141,6 +141,7 @@ func CreateRecord(tb string, fields ...Field) (*sql.Rows, error) {
 	}
 	str := fmt.Sprintf("insert into %s (%s) values (%s)", tb, colStr, valStr)
 	rows, err := db.Query(str)
+	fmt.Println(rows)
 	return rows, err
 }
 
