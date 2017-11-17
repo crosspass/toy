@@ -14,6 +14,13 @@ type Model interface {
 	TbName() string
 }
 
+func Find(model *Model, fields ...Field) error {
+  orm.FindRecord()
+  if err == nil {
+    return model
+  }
+}
+
 func Create(model Model) (Model, error) {
 	fields := getFields(model)
 	rows, err := orm.CreateRecord(model.TbName(), fields...)

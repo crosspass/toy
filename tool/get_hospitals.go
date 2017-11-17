@@ -43,8 +43,13 @@ func fetchHospitals() ([]hospital, error) {
 }
 
 func updateHospitals() {
-  // hospitals, err := fetchHospitals()
-  // if err != nil {
-  //   fmt.Errorf("%s",err)
-  // }
+  hospitals, err := fetchHospitals()
+  if err != nil {
+    fmt.Println("%s",err)
+    return
+  }
+  for _, hospital = range hospitals {
+    hospital := new(Hospital)
+    Orm.Find(hospital, )
+  }
 }
