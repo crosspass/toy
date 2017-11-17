@@ -1,10 +1,9 @@
-
 package main
 
 import (
-  "toy/lib/orm"
+	"toy/lib/orm"
 )
 
 func main() {
-  orm.CreateTable("students", orm.StringColumn{ "name", 20 })
+	orm.CreateTable("students", orm.StringColumn{"name", 20})
 }

@@ -9,10 +9,10 @@ import (
 )
 
 /*
-* create table students
+* Generate migration file by command
 * Example:
 *     create_table_students
-* output file: ./create_table_students
+* output file: ./create_table_students_123456789
  */
 func main() {
 	if len(os.Args) == 1 {
@@ -25,8 +25,11 @@ func main() {
 	}
 
 	var colstr string
-	for _, arg := range os.Args[2:] {
+	for i, arg := range os.Args[2:] {
 		column := strings.Split(arg, ":")
+    if i != 0 {
+      colstr += ","
+    }
 		switch len(column) {
 		case 1:
 			colstr += fmt.Sprintf("orm.StringColumn{ \"%s\", 20 }", column[0])
@@ -80,8 +83,6 @@ func main() {
 		os.Exit(1)
 	}
 	file.WriteString(fmt.Sprintf(content, sql))
-	// os.Args[1]
-	// file.write(fmt.Sprintf(content, tb))
 }
 
 func usage() {

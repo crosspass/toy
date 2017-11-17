@@ -112,8 +112,11 @@ func AddColumns(tb string, columns ...Column) error {
 * "create table students(name varchar(10), no int)"
  */
 func rawCreateTableSql(tb string, columns ...Column) (query string) {
+	if len(columns) == 0 {
+		return fmt.Sprintf("create table %s(id SERIAL)", tb)
+	}
 	columsStr := rawColumnsStr(columns...)
-	return fmt.Sprintf("create table %s(%s)", tb, columsStr)
+	return fmt.Sprintf("create table %s(id SERIAL, %s)", tb, columsStr)
 }
 
 func rawColumnsStr(columns ...Column) string {
@@ -139,15 +142,14 @@ func CreateRecord(tb string, fields ...Field) (*sql.Rows, error) {
 		colStr += field.Name
 		valStr += fmt.Sprintf("'%v'", field.Value)
 	}
-	str := fmt.Sprintf("insert into %s (%s) values (%s)", tb, colStr, valStr)
+	str := fmt.Sprintf("insert into %s (%s) values (%s) returning *", tb, colStr, valStr)
 	rows, err := db.Query(str)
-	fmt.Println(rows)
 	return rows, err
 }
 
-func UpdateRecord(tb string, coditions []Field, fields ...Field) error {
+func UpdateRecord(tb string, field Field, fields ...Field) error {
 	db := getDB()
-	where := parseWhere(coditions...)
+	where := parseWhere(field)
 	var colStr string
 	for i, field := range fields {
 		if i != 0 {
@@ -156,8 +158,8 @@ func UpdateRecord(tb string, coditions []Field, fields ...Field) error {
 		colStr += fmt.Sprintf("%s = '%s'", field.Name, field.Value)
 	}
 	str := fmt.Sprintf("update %s set %s  %s", tb, colStr, where)
-	rows, err := db.Query(str)
-	defer rows.Close()
+  fmt.Println(str)
+	_, err := db.Query(str)
 	return err
 }
 

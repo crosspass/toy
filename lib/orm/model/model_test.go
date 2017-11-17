@@ -6,8 +6,9 @@ import (
 )
 
 type Student struct {
-	Name orm.Field
-	Age  orm.Field
+	Id   int
+	Name string
+	Age  int
 }
 
 func (stu Student) TbName() string {
@@ -19,8 +20,11 @@ func TestCreate(t *testing.T) {
 	if err != nil {
 		t.Errorf("Create table students failed: %s", err)
 	}
-	stu := Student{orm.Field{"name", "bob"}, orm.Field{"age", 17}}
-	Create(stu)
+	stu := Student{Name: "bob", Age: 17}
+	Create(&stu)
+	if stu.Id != 1 {
+		t.Error("expected: %d, actual: %d", 1, stu.Id)
+	}
 	orm.DropTable("students")
 }
 
@@ -29,14 +33,12 @@ func TestUpdate(t *testing.T) {
 	if err != nil {
 		t.Errorf("Create table students failed: %s", err)
 	}
-	stu := Student{orm.Field{"name", "bob"}, orm.Field{"age", 17}}
-	Create(stu)
-	stu.Name = orm.Field{"name", "mike"}
-	Update(stu)
-	if v, ok := stu.Name.Value.(string); ok {
-		if v != "mike" {
-			t.Errorf("expected: %s, actual: %v", "mike", stu.Name.Value)
-		}
+  stu := Student{Name: "bob", Age: 17}
+	Create(&stu)
+	stu.Name = "mike"
+  ok := Update(stu)
+	if !ok {
+    t.Error("Update failed!")
 	}
 	orm.DropTable("students")
 }
