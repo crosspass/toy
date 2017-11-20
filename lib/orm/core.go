@@ -147,19 +147,19 @@ func CreateRecord(tb string, fields ...Field) (*sql.Rows, error) {
 	return rows, err
 }
 
-func UpdateRecord(tb string, whereFields []Field, fields ...Field) error {
+func UpdateRecord(tb string, whereFields []Field, fields ...Field) (*sql.Rows, error) {
 	db := getDB()
 	where := parseWhere(whereFields...)
 	var colStr string
 	for i, field := range fields {
 		if i != 0 {
-			colStr = ","
+			colStr += ","
 		}
 		colStr += fmt.Sprintf("%v = '%v'", field.Name, field.Value)
 	}
-	str := fmt.Sprintf("update %s set %s  %s", tb, colStr, where)
-	_, err := db.Query(str)
-	return err
+	str := fmt.Sprintf("update %s set %s  %s returning *", tb, colStr, where)
+	row, err := db.Query(str)
+	return row, err
 }
 
 func FetchRecords(tb string, fields []Field) (*sql.Rows, error) {
@@ -171,11 +171,11 @@ func FetchRecords(tb string, fields []Field) (*sql.Rows, error) {
 }
 
 // Find record by columns as condition
-func FindRecord(tb string, fields []Field) (*sql.Row) {
+func FindRecord(tb string, fields ...Field) *sql.Row {
 	db := getDB()
 	var where = parseWhere(fields...)
 	str := fmt.Sprintf("select * from %s %s", tb, where)
-  row := db.QueryRow(str)
+	row := db.QueryRow(str)
 	return row
 }
 

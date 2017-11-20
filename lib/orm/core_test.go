@@ -138,7 +138,7 @@ func TestUpdateRecord(t *testing.T) {
 		t.Error("Create table students failed: %s", err)
 	}
 	CreateRecord("students", Field{"name", "bob"}, Field{"age", 20})
-	err = UpdateRecord("students", []Field{{"name", "bob"}}, Field{"name", "mike"})
+	_, err = UpdateRecord("students", []Field{{"name", "bob"}}, Field{"name", "mike"})
 	if err != nil {
 		t.Error(err)
 	}

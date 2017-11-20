@@ -27,9 +27,9 @@ func main() {
 	var colstr string
 	for i, arg := range os.Args[2:] {
 		column := strings.Split(arg, ":")
-    if i != 0 {
-      colstr += ","
-    }
+		if i != 0 {
+			colstr += ","
+		}
 		switch len(column) {
 		case 1:
 			colstr += fmt.Sprintf("orm.StringColumn{ \"%s\", 20 }", column[0])
