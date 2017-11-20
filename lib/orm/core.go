@@ -109,7 +109,7 @@ func rawCreateTableSql(tb string, columns ...Column) (query string) {
 		return fmt.Sprintf("create table %s(id SERIAL)", tb)
 	}
 	columsStr := rawColumnsStr(columns...)
-	return fmt.Sprintf("create table %s(id SERIAL, %s)", tb, columsStr)
+	return fmt.Sprintf("create table %s(id SERIAL PRIMARY KEY, %s)", tb, columsStr)
 }
 
 func rawColumnsStr(columns ...Column) string {
@@ -171,7 +171,7 @@ func FetchRecords(tb string, fields []Field) (*sql.Rows, error) {
 func FindRecord(tb string, fields ...Field) (*sql.Rows, error) {
 	db := getDB()
 	var where = parseWhere(fields...)
-	str := fmt.Sprintf("select * from %s %s", tb, where)
+	str := fmt.Sprintf("select * from %s %s limit 1", tb, where)
 	return db.Query(str)
 }
 
