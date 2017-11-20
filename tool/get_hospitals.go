@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"toy/lib/orm"
 	"toy/model"
+  "time"
 )
 
 type hospital struct {
@@ -15,10 +16,14 @@ type hospital struct {
 	Id   int
 }
 
+var netClient = &http.Client{
+    Timeout: time.Second * 10,
+}
+
 func fetchHospitals() ([]hospital, error) {
 	// Get http body
 	url := "https://www.zhyygh.cn/web/hospital_list.jsp"
-	resp, err := http.Get(url)
+	resp, err := netClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +50,27 @@ func fetchHospitals() ([]hospital, error) {
 	return hospitals, nil
 }
 
+// func fetchDepartment() ([]model.Hospital, error) {
+// 	// Get http body
+//   url = "https://www.zhyygh.cn/web/include/hospital/dept_list.jsp?"
+
+//   var hs []model.Hospital
+//   orm.Fetch(hs)
+//   for _, h := range hs {
+//     fetchDepartmentUrl = fmt.Sprintf("%shospital_id=%d", url, h.Id)
+//     resp, err := netClient.get(fetchDepartmentUrl)
+//     if err != nil {
+//       return nil, err
+//     }
+// 	  defer resp.Body.Close()
+//     body, err := ioutil.ReadAll(resp.Body)
+//     if err != nil {
+//       return nil, err
+//     }
+//   }
+// 	return hs, nil
+// }
+
 func updateHospitals() {
 	hospitals, err := fetchHospitals()
 	if err != nil {
@@ -58,3 +84,4 @@ func updateHospitals() {
 		}
 	}
 }
+

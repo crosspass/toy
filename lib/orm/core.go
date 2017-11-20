@@ -160,10 +160,11 @@ func CountRecord(tb string, fields ...Field) *sql.Row {
 	return db.QueryRow(str)
 }
 
-func FetchRecords(tb string, fields []Field) (*sql.Rows, error) {
+func FetchRecords(tb string, fields ...Field) (*sql.Rows, error) {
 	db := getDB()
 	var where = parseWhere(fields...)
 	str := fmt.Sprintf("select * from %s %s", tb, where)
+  fmt.Println(str)
 	return db.Query(str)
 }
 

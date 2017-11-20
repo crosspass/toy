@@ -97,19 +97,18 @@ func TestSave(t *testing.T) {
 	}
 }
 
-// func TestFetch(t *testing.T) {
-// 	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
-// 	defer DropTable("students")
-// 	if err != nil {
-// 		t.Errorf("Create table students failed: %s", err)
-// 	}
-// 	stu := Student{Name: "bob", Age: 17}
-// 	Create(&stu)
-// 	stu.Name = "mike"
-// 	err = Save(&stu)
-// 	if err != nil || stu.Name != "mike" {
-// 		t.Error("Save failed!", err)
-// 	}
-
-// }
+func TestFetch(t *testing.T) {
+	// err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	// defer DropTable("students")
+	// if err != nil {
+	// 	t.Errorf("Create table students failed: %s", err)
+	// }
+	// stu := Student{Name: "bob", Age: 17}
+	// Create(&stu)
+	// stu = Student{Name: "mike", Age: 12}
+	// Create(&stu)
+  stu := Student{}
+  students, _ := Fetch(&stu)
+  t.Error(students)
+}
 

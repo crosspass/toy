@@ -151,7 +151,7 @@ func TestFetchRecord(t *testing.T) {
 		t.Error("Create table students failed: %s", err)
 	}
 	CreateRecord("students", Field{"name", "bob"}, Field{"age", 20})
-	rows, err := FetchRecords("students", []Field{{"name", "bob"}})
+	rows, err := FetchRecords("students", Field{"name", "bob"})
 	defer rows.Close()
 	if err != nil {
 		t.Error(err)

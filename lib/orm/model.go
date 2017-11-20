@@ -49,14 +49,13 @@ func FindBy(model Model, whereFields ...Field) error {
 	return setFields(model, rows)
 }
 
-// Todo
-// func Fetch(model []Model, whereFields ...Field) error {
-// 	rows, err := FindRecord(model.TbName(), whereFields...)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return setFields2(model, rows)
-// }
+func Fetch(model Model, whereFields ...Field) ([]Model, error){
+	rows, err := FetchRecords(model.TbName(), whereFields...)
+	if err != nil {
+		return nil, err
+	}
+	return setFields2(model, rows)
+}
 
 func Create(model Model) error {
 	fields := getFiledsWithoutId(model)
@@ -131,8 +130,8 @@ func setFields(model Model, rows *sql.Rows) error {
 	var fields []interface{}
 	var f_h = map[string]interface{}{}
 
-	for i := 0; i < valOf.NumField(); i++ {
-		for j := 0; j < len(columnTypes); j++ {
+	for j := 0; j < len(columnTypes); j++ {
+	  for i := 0; i < valOf.NumField(); i++ {
 			if columnType := columnTypes[j]; strings.ToLower(typeOf.Field(i).Name) == columnType.Name() {
 				switch valOf.Field(j).Kind().String() {
 				case "int":
@@ -249,11 +248,10 @@ func setFields(model Model, rows *sql.Rows) error {
 }
 
 // Fetch data from database and set to model
-func setFields2(model Model, rows *sql.Rows) error {
-	var err error
+func setFields2(model Model, rows *sql.Rows) (models []Model, err error) {
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
-		return err
+		return
 	}
 
 	valOf := reflect.ValueOf(model).Elem()
@@ -261,8 +259,8 @@ func setFields2(model Model, rows *sql.Rows) error {
 	var fields []interface{}
 	var f_h = map[string]interface{}{}
 
-	for i := 0; i < valOf.NumField(); i++ {
-		for j := 0; j < len(columnTypes); j++ {
+  for j := 0; j < len(columnTypes); j++ {
+	  for i := 0; i < valOf.NumField(); i++ {
 			if columnType := columnTypes[j]; strings.ToLower(typeOf.Field(i).Name) == columnType.Name() {
 				switch valOf.Field(j).Kind().String() {
 				case "int":
@@ -301,7 +299,7 @@ func setFields2(model Model, rows *sql.Rows) error {
 					fields = append(fields, s)
 					f_h[typeOf.Field(i).Name] = s
 				default:
-					return errors.New(fmt.Sprintf("Type %s don't supported!", valOf.Field(j).Kind()))
+					return models, errors.New(fmt.Sprintf("Type %s don't supported!", valOf.Field(j).Kind()))
 				}
 				break
 			}
@@ -309,71 +307,79 @@ func setFields2(model Model, rows *sql.Rows) error {
 	}
 
 	err = NotRecordError
+  defer rows.Close()
 	if rows.Next() {
 		err = nil
 		rows.Scan(fields...)
+    newValOf := valOf
 		for m := 0; m < typeOf.NumField(); m++ {
 			if val, ok := f_h[typeOf.Field(m).Name]; ok {
-				switch kind := valOf.Field(m).Kind().String(); kind {
+				switch kind := newValOf.Field(m).Kind().String(); kind {
 				case "int":
 					l, ok := val.(*int)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetInt(int64(*l))
+					newValOf.Field(m).SetInt(int64(*l))
 				case "rune":
 					l, ok := val.(*rune)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetInt(int64(*l))
+					newValOf.Field(m).SetInt(int64(*l))
 				case "int8":
 					l, ok := val.(*int8)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetInt(int64(*l))
+					newValOf.Field(m).SetInt(int64(*l))
 				case "int16":
 					l, ok := val.(*int16)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetInt(int64(*l))
+					newValOf.Field(m).SetInt(int64(*l))
 				case "int32":
 					l, ok := val.(*int32)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetInt(int64(*l))
+					newValOf.Field(m).SetInt(int64(*l))
 				case "int64":
 					l, ok := val.(*int64)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetInt(int64(*l))
+					newValOf.Field(m).SetInt(int64(*l))
 				case "float32":
 					l, ok := val.(*float32)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetFloat(float64(*l))
+					newValOf.Field(m).SetFloat(float64(*l))
 				case "float64":
 					l, ok := val.(*float64)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetFloat(float64(*l))
+					newValOf.Field(m).SetFloat(float64(*l))
 				case "string":
 					l, ok := val.(*string)
 					if !ok {
-						return errors.New("assert failed")
+						return models, errors.New("assert failed")
 					}
-					valOf.Field(m).SetString(*l)
+					newValOf.Field(m).SetString(*l)
 				default:
-					return errors.New(fmt.Sprintf("Type %s don't supported!", kind))
+					return models, errors.New(fmt.Sprintf("Type %s don't supported!", kind))
 				}
 			}
 		}
+    m, ok := newValOf.Interface().(Model)
+    fmt.Println(m)
+    if !ok {
+      fmt.Println(err)
+    }
+    models = append(models, m)
 	}
-	return err
+	return
 }
