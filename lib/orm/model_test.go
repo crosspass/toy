@@ -51,7 +51,7 @@ func TestFindOrCreateBy(t *testing.T) {
 	var expectedStu = new(Student)
 	err = FindOrCreateBy(expectedStu, Field{"name", "bob"})
 	if err != nil || expectedStu.Name != "bob" {
-		t.Error("Find failed!", err)
+		t.Errorf("expected: %v, err: %v ", expectedStu, err)
 	}
 
 }

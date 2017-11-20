@@ -104,11 +104,12 @@ func getFiledsWithoutId(model Model) []Field {
 
 // Fetch data from database and set to model
 func setFields(model Model, rows *sql.Rows) error {
-	var err error = NotRecordError
+	var err error
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
 		return err
 	}
+	err = NotRecordError
 	valOf := reflect.ValueOf(model).Elem()
 	typeOf := reflect.TypeOf(model).Elem()
 	var fields []interface{}
