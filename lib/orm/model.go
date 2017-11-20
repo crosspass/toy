@@ -14,115 +14,41 @@ type Model interface {
 	TbName() string
 }
 
-func Find(model Model, whereFields ...Field) {
-	row := FindRecord(model.TbName(), whereFields...)
-	var fields []interface{}
+func (e Error) Error() string { return string(e) }
 
-	valOf := reflect.ValueOf(model).Elem()
-	for i := 0; i < valOf.NumField(); i++ {
-		switch valOf.Field(i).Kind().String() {
-		case "int":
-			f := new(int)
-			fields = append(fields, f)
-		case "rune":
-			f := new(rune)
-			fields = append(fields, f)
-		case "int8":
-			f := new(int8)
-			fields = append(fields, f)
-		case "int16":
-			f := new(int16)
-			fields = append(fields, f)
-		case "int32":
-			f := new(int32)
-			fields = append(fields, f)
-		case "int64":
-			f := new(int8)
-			fields = append(fields, f)
-		case "float32":
-			f := new(float32)
-			fields = append(fields, f)
-		case "float64":
-			f := new(float64)
-			fields = append(fields, f)
-		case "string":
-			f := new(string)
-			fields = append(fields, f)
-		default:
-			panic(fmt.Sprintf("Type %s don't supported!", valOf.Field(i).Kind()))
-		}
+type Error string
+
+const (
+	NotRecordError = Error("No record found!")
+)
+
+func FindOrCreateBy(model Model, whereFields ...Field) error {
+	err := FindBy(model, whereFields...)
+	if err == nil {
+		return nil
 	}
-	row.Scan(fields...)
-	for i := 0; i < valOf.NumField(); i++ {
-		switch kind := valOf.Field(i).Kind().String(); kind {
-		case "int":
-			l, ok := fields[i].(*int)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetInt(int64(*l))
-		case "rune":
-			l, ok := fields[i].(*rune)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetInt(int64(*l))
-		case "int8":
-			l, ok := fields[i].(*int8)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetInt(int64(*l))
-		case "int16":
-			l, ok := fields[i].(*int16)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetInt(int64(*l))
-		case "int32":
-			l, ok := fields[i].(*int32)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetInt(int64(*l))
-		case "int64":
-			l, ok := fields[i].(*int64)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetInt(int64(*l))
-		case "float32":
-			l, ok := fields[i].(*float32)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetFloat(float64(*l))
-		case "float64":
-			l, ok := fields[i].(*float64)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetFloat(float64(*l))
-		case "string":
-			l, ok := fields[i].(*string)
-			if !ok {
-				panic("assert failed")
-			}
-			valOf.Field(i).SetString(*l)
-		default:
-			panic(fmt.Sprintf("Type %s don't supported!", kind))
-		}
+	rows, err := CreateRecord(model.TbName(), whereFields...)
+	if err != nil {
+		return err
 	}
+	return setFields(model, rows)
+}
+
+func FindBy(model Model, whereFields ...Field) error {
+	rows, err := FindRecord(model.TbName(), whereFields...)
+	if err != nil {
+		return err
+	}
+	return setFields(model, rows)
 }
 
 func Create(model Model) error {
 	fields := getFiledsWithoutId(model)
-	rows, err := CreateRecord((model).TbName(), fields...)
+	rows, err := CreateRecord(model.TbName(), fields...)
 	if err != nil {
 		return err
 	}
-	setFields(model, rows)
-	return nil
+	return setFields(model, rows)
 }
 
 func Update(model Model, fields ...Field) error {
@@ -178,7 +104,7 @@ func getFiledsWithoutId(model Model) []Field {
 
 // Fetch data from database and set to model
 func setFields(model Model, rows *sql.Rows) error {
-	var err error
+	var err error = NotRecordError
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
 		return err
@@ -236,6 +162,7 @@ func setFields(model Model, rows *sql.Rows) error {
 	}
 
 	if rows.Next() {
+		err = nil
 		rows.Scan(fields...)
 		for m := 0; m < typeOf.NumField(); m++ {
 			if val, ok := f_h[typeOf.Field(m).Name]; ok {

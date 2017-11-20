@@ -27,6 +27,35 @@ func TestCreate(t *testing.T) {
 	defer DropTable("students")
 }
 
+func TestFindBy(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	defer DropTable("students")
+	if err != nil {
+		t.Errorf("Create table students failed: %s", err)
+	}
+	stu := Student{Name: "bob", Age: 17}
+	Create(&stu)
+	var expectedStu = new(Student)
+	err = FindBy(expectedStu, Field{"name", "bob"})
+	if err != nil || expectedStu.Age != 17 {
+		t.Error("Find failed!", err)
+	}
+}
+
+func TestFindOrCreateBy(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	defer DropTable("students")
+	if err != nil {
+		t.Errorf("Create table students failed: %s", err)
+	}
+	var expectedStu = new(Student)
+	err = FindOrCreateBy(expectedStu, Field{"name", "bob"})
+	if err != nil || expectedStu.Name != "bob" {
+		t.Error("Find failed!", err)
+	}
+
+}
+
 func TestUpdate(t *testing.T) {
 	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
 	defer DropTable("students")

@@ -75,19 +75,12 @@ func getDB() (db *sql.DB) {
 func CreateTable(tb string, columns ...Column) error {
 	db := getDB()
 	_, err := db.Query(rawCreateTableSql(tb, columns...))
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
+	return err
 }
 
 func DropTable(name string) error {
 	db := getDB()
 	_, err := db.Query(fmt.Sprintf("drop table %s", name))
-	if err != nil {
-		log.Println(err)
-	}
 	return err
 }
 
@@ -143,8 +136,7 @@ func CreateRecord(tb string, fields ...Field) (*sql.Rows, error) {
 		valStr += fmt.Sprintf("'%v'", field.Value)
 	}
 	str := fmt.Sprintf("insert into %s (%s) values (%s) returning *", tb, colStr, valStr)
-	rows, err := db.Query(str)
-	return rows, err
+	return db.Query(str)
 }
 
 func UpdateRecord(tb string, whereFields []Field, fields ...Field) (*sql.Rows, error) {
@@ -158,25 +150,22 @@ func UpdateRecord(tb string, whereFields []Field, fields ...Field) (*sql.Rows, e
 		colStr += fmt.Sprintf("%v = '%v'", field.Name, field.Value)
 	}
 	str := fmt.Sprintf("update %s set %s  %s returning *", tb, colStr, where)
-	row, err := db.Query(str)
-	return row, err
+	return db.Query(str)
 }
 
 func FetchRecords(tb string, fields []Field) (*sql.Rows, error) {
 	db := getDB()
 	var where = parseWhere(fields...)
 	str := fmt.Sprintf("select * from %s %s", tb, where)
-	rows, err := db.Query(str)
-	return rows, err
+	return db.Query(str)
 }
 
 // Find record by columns as condition
-func FindRecord(tb string, fields ...Field) *sql.Row {
+func FindRecord(tb string, fields ...Field) (*sql.Rows, error) {
 	db := getDB()
 	var where = parseWhere(fields...)
 	str := fmt.Sprintf("select * from %s %s", tb, where)
-	row := db.QueryRow(str)
-	return row
+	return db.Query(str)
 }
 
 func parseWhere(fields ...Field) string {

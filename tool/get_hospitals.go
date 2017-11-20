@@ -51,7 +51,7 @@ func updateHospitals() {
 		return
 	}
 	for _, hospital = range hospitals {
-		h := Hospita{}
+		h := model.Hospita{}
 		model.FindOrCreateBy(hospital)
 	}
 }
