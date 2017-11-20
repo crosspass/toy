@@ -153,6 +153,13 @@ func UpdateRecord(tb string, whereFields []Field, fields ...Field) (*sql.Rows, e
 	return db.Query(str)
 }
 
+func CountRecord(tb string, fields ...Field) *sql.Row {
+	db := getDB()
+	var where = parseWhere(fields...)
+	str := fmt.Sprintf("select count(*) from %s %s", tb, where)
+	return db.QueryRow(str)
+}
+
 func FetchRecords(tb string, fields []Field) (*sql.Rows, error) {
 	db := getDB()
 	var where = parseWhere(fields...)
@@ -169,10 +176,14 @@ func FindRecord(tb string, fields ...Field) (*sql.Rows, error) {
 }
 
 func parseWhere(fields ...Field) string {
+	if len(fields) == 0 {
+		return ""
+	}
+
 	var where string
 	for i, f := range fields {
 		if i != 0 {
-			where += ","
+			where += " and "
 		}
 		where += fmt.Sprintf("%s = '%v'", f.Name, f.Value)
 	}

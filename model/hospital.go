@@ -5,6 +5,6 @@ type Hospital struct {
 	Name string
 }
 
-func (stu Student) TbName() string {
-	return "hospital"
+func (hospital Hospital) TbName() string {
+	return "hospitals"
 }

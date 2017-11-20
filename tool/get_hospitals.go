@@ -1,6 +1,7 @@
 package tool
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -50,8 +51,10 @@ func updateHospitals() {
 		fmt.Println("%s", err)
 		return
 	}
-	for _, hospital = range hospitals {
-		h := model.Hospita{}
-		model.FindOrCreateBy(hospital)
+	for _, h := range hospitals {
+		err = orm.FindOrCreateBy(new(model.Hospital), orm.Field{"name", h.Name}, orm.Field{"id", h.Id})
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

@@ -2,6 +2,8 @@ package tool
 
 import (
 	"testing"
+	"toy/lib/orm"
+	"toy/model"
 )
 
 func TestFetchHospitals(t *testing.T) {
@@ -34,6 +36,13 @@ func TestFetchHospitals(t *testing.T) {
 		if !match {
 			t.Errorf("%v not in actual %v", expectedHospital, hospitals)
 		}
+	}
+}
+
+func TestUpdateHospitals(t *testing.T) {
+	updateHospitals()
+	if actual, err := orm.Count(new(model.Hospital)); err != nil || actual != 13 {
+		t.Errorf("expected count %d, actual: %d, err: %v", 13, actual, err)
 	}
 }
 

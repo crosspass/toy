@@ -22,6 +22,13 @@ const (
 	NotRecordError = Error("No record found!")
 )
 
+func Count(model Model, whereFields ...Field) (int, error) {
+	var count int
+	row := CountRecord(model.TbName(), whereFields...)
+	err := row.Scan(&count)
+	return count, err
+}
+
 func FindOrCreateBy(model Model, whereFields ...Field) error {
 	err := FindBy(model, whereFields...)
 	if err == nil {

@@ -56,6 +56,18 @@ func TestFindOrCreateBy(t *testing.T) {
 
 }
 
+func TestCount(t *testing.T) {
+	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
+	defer DropTable("students")
+	if err != nil {
+		t.Errorf("Create table students failed: %s", err)
+	}
+	actual, err := Count(new(Student))
+	if err != nil || actual != 0 {
+		t.Errorf("expected: %d, actual: %d, err: %s", 0, actual, err)
+	}
+}
+
 func TestUpdate(t *testing.T) {
 	err := CreateTable("students", StringColumn{"name", 10}, IntegerColumn{"age", 3})
 	defer DropTable("students")
