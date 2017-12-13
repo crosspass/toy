@@ -54,7 +54,7 @@ func Fetch(model Model, whereFields ...Field) ([]Model, error){
 	if err != nil {
 		return nil, err
 	}
-	return setFields2(model, rows)
+	return getInstancesByRows(model, rows)
 }
 
 func Create(model Model) error {
@@ -248,7 +248,7 @@ func setFields(model Model, rows *sql.Rows) error {
 }
 
 // Fetch data from database and set to model
-func setFields2(model Model, rows *sql.Rows) (models []Model, err error) {
+func getInstancesByRows(model Model, rows *sql.Rows) (models []Model, err error) {
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
 		return
