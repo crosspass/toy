@@ -1,7 +1,7 @@
 package main
 
 import (
-	"toy/lib/orm"
+	"github.com/toy/lib/orm"
 )
 
 func main() {

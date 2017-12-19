@@ -2,8 +2,8 @@ package tool
 
 import (
 	"testing"
-	"toy/lib/orm"
-	"toy/model"
+	// "github.com/toy/lib/orm"
+	// "github.com/toy/model"
 )
 
 func TestFetchHospitals(t *testing.T) {
@@ -24,7 +24,7 @@ func TestFetchHospitals(t *testing.T) {
 		hospital{"珠海市斗门区侨立中医院", 11},
 		hospital{"珠海市斗门区妇幼保健院", 12},
 		hospital{"珠海市香洲区第二人民医院", 13},
-		hospital{"珠海市第五人民医院（平沙医院）", 14},
+		hospital{"珠海市平沙医院", 14},
 	}
 	for _, expectedHospital := range expectedHospitals {
 		var match = false
@@ -39,12 +39,12 @@ func TestFetchHospitals(t *testing.T) {
 	}
 }
 
-func TestUpdateHospitals(t *testing.T) {
-	updateHospitals()
-	if actual, err := orm.Count(new(model.Hospital)); err != nil || actual != 13 {
-		t.Errorf("expected count %d, actual: %d, err: %v", 13, actual, err)
-	}
-}
+// func TestUpdateHospitals(t *testing.T) {
+// 	updateHospitals()
+// 	if actual, err := orm.Count(new(model.Hospital)); err != nil || actual != 13 {
+// 		t.Errorf("expected count %d, actual: %d, err: %v", 13, actual, err)
+// 	}
+// }
 
 func BenchmarkFetchHospitals(b *testing.B) {
 	for n := 0; n < b.N; n++ {

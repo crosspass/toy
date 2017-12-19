@@ -56,7 +56,7 @@ var DB *sql.DB
 
 func getDB() (db *sql.DB) {
 	if DB == nil {
-		db, err := sql.Open("postgres", "user=root host=/var/run/postgresql dbname=dating password=root123")
+		db, err := sql.Open("postgres", "user=wu host=/private/tmp dbname=dating password=wu123")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -164,7 +164,7 @@ func FetchRecords(tb string, fields ...Field) (*sql.Rows, error) {
 	db := getDB()
 	var where = parseWhere(fields...)
 	str := fmt.Sprintf("select * from %s %s", tb, where)
-  fmt.Println(str)
+	fmt.Println(str)
 	return db.Query(str)
 }
 

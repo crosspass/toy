@@ -2,13 +2,13 @@ package tool
 
 import (
 	"fmt"
+	"github.com/toy/lib/orm"
+	"github.com/toy/model"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strconv"
-	"toy/lib/orm"
-	"toy/model"
-  "time"
+	"time"
 )
 
 type hospital struct {
@@ -17,7 +17,7 @@ type hospital struct {
 }
 
 var netClient = &http.Client{
-    Timeout: time.Second * 10,
+	Timeout: time.Second * 10,
 }
 
 func fetchHospitals() ([]hospital, error) {
@@ -84,4 +84,3 @@ func updateHospitals() {
 		}
 	}
 }
-

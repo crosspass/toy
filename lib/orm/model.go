@@ -49,7 +49,7 @@ func FindBy(model Model, whereFields ...Field) error {
 	return setFields(model, rows)
 }
 
-func Fetch(model Model, whereFields ...Field) ([]Model, error){
+func Fetch(model Model, whereFields ...Field) ([]Model, error) {
 	rows, err := FetchRecords(model.TbName(), whereFields...)
 	if err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ func setFields(model Model, rows *sql.Rows) error {
 	var f_h = map[string]interface{}{}
 
 	for j := 0; j < len(columnTypes); j++ {
-	  for i := 0; i < valOf.NumField(); i++ {
+		for i := 0; i < valOf.NumField(); i++ {
 			if columnType := columnTypes[j]; strings.ToLower(typeOf.Field(i).Name) == columnType.Name() {
 				switch valOf.Field(j).Kind().String() {
 				case "int":
@@ -259,8 +259,8 @@ func getInstancesByRows(model Model, rows *sql.Rows) (models []Model, err error)
 	var fields []interface{}
 	var f_h = map[string]interface{}{}
 
-  for j := 0; j < len(columnTypes); j++ {
-	  for i := 0; i < valOf.NumField(); i++ {
+	for j := 0; j < len(columnTypes); j++ {
+		for i := 0; i < valOf.NumField(); i++ {
 			if columnType := columnTypes[j]; strings.ToLower(typeOf.Field(i).Name) == columnType.Name() {
 				switch valOf.Field(j).Kind().String() {
 				case "int":
@@ -307,11 +307,11 @@ func getInstancesByRows(model Model, rows *sql.Rows) (models []Model, err error)
 	}
 
 	err = NotRecordError
-  defer rows.Close()
+	defer rows.Close()
 	if rows.Next() {
 		err = nil
 		rows.Scan(fields...)
-    newValOf := valOf
+		newValOf := valOf
 		for m := 0; m < typeOf.NumField(); m++ {
 			if val, ok := f_h[typeOf.Field(m).Name]; ok {
 				switch kind := newValOf.Field(m).Kind().String(); kind {
@@ -374,12 +374,12 @@ func getInstancesByRows(model Model, rows *sql.Rows) (models []Model, err error)
 				}
 			}
 		}
-    m, ok := newValOf.Interface().(Model)
-    fmt.Println(m)
-    if !ok {
-      fmt.Println(err)
-    }
-    models = append(models, m)
+		m, ok := newValOf.Interface().(Model)
+		fmt.Println(m)
+		if !ok {
+			fmt.Println(err)
+		}
+		models = append(models, m)
 	}
 	return
 }

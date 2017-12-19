@@ -107,8 +107,7 @@ func TestFetch(t *testing.T) {
 	// Create(&stu)
 	// stu = Student{Name: "mike", Age: 12}
 	// Create(&stu)
-  stu := Student{}
-  students, _ := Fetch(&stu)
-  t.Error(students)
+	stu := Student{}
+	students, _ := Fetch(&stu)
+	t.Error(students)
 }
-
